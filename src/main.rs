@@ -1,6 +1,7 @@
 use fltk::{
     app::{self, Scheme},
     button::Button,
+    enums::Color,
     frame::Frame,
     image::PngImage,
     prelude::*,
@@ -29,17 +30,21 @@ pub enum Message {
     Zero,
     Dot,
     EqualTo,
+    LeftBracket,
+    RightBracket,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (screen_width, screen_height) = (400, 450);
     app::set_font_size(26);
+    app::set_background_color(72, 72, 108);
+    app::set_scheme(Scheme::Plastic);
     // Everything else
     let ((app, icon, (width, height)), (mut wind, mut previous, mut frame)) = (
         (
             app::App::default().with_scheme(Scheme::Gleam),
             PngImage::from_data(include_bytes!("icon.png")).unwrap(),
-            (screen_width / 4, (2 * screen_height) / (3 * 4)),
+            (screen_width / 4, (2 * screen_height) / (3 * 6)),
         ),
         (
             Window::new(100, 100, screen_width, screen_height, "Calculator"),
@@ -55,6 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (mut four, mut five, mut six, mut minus),
         (mut one, mut two, mut three, mut plus),
         (mut zero, mut space, mut dot, mut equal_to),
+        (mut left_bracket, mut right_bracket),
     ) = (
         (
             Button::new(0 * width, 150 + 0 * height, width, height, "CE"),
@@ -81,14 +87,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             Button::new(3 * width, 150 + 3 * height, width, height, "+"),
         ),
         (
-            Button::new(0 * width, 150 + 3 * height, width, height, "0"),
-            Button::new(1 * width, 150 + 3 * height, width, height, "SPACE"),
-            Button::new(2 * width, 150 + 3 * height, width, height, "."),
-            Button::new(3 * width, 150 + 3 * height, width, height, "="),
+            Button::new(0 * width, 150 + 4 * height, width, height, "0"),
+            Button::new(2 * width, 150 + 4 * height, width, height, "SPACE"),
+            Button::new(1 * width, 150 + 4 * height, width, height, "."),
+            Button::new(3 * width, 150 + 4 * height, width, height, "="),
+        ),
+        (
+            Button::new(0 * width, 150 + 5 * height, width * 2, height, "("),
+            Button::new(2 * width, 150 + 5 * height, width * 2, height, ")"),
         ),
     );
 
     wind.set_icon(Some(icon));
+
+    divide.set_color(Color::DarkCyan);
+    multiply.set_color(Color::DarkCyan);
+    minus.set_color(Color::DarkCyan);
+    equal_to.set_color(Color::DarkCyan);
+    plus.set_color(Color::DarkCyan);
+    clear_everything.set_color(Color::DarkGreen);
+    backspace.set_color(Color::DarkGreen);
+    previous_button.set_color(Color::DarkGreen);
+    dot.set_color(Color::DarkRed);
+    space.set_color(Color::DarkRed);
+    left_bracket.set_color(Color::DarkYellow);
+    right_bracket.set_color(Color::DarkYellow);
+
+    one.set_color(Color::DarkMagenta);
+    two.set_color(Color::DarkMagenta);
+    three.set_color(Color::DarkMagenta);
+    four.set_color(Color::DarkMagenta);
+    five.set_color(Color::DarkMagenta);
+    six.set_color(Color::DarkMagenta);
+    seven.set_color(Color::DarkMagenta);
+    eight.set_color(Color::DarkMagenta);
+    nine.set_color(Color::DarkMagenta);
+    zero.set_color(Color::DarkMagenta);
 
     wind.end();
     wind.show();
@@ -115,11 +149,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     nine.emit(sender, Message::Nine);
     multiply.emit(sender, Message::Multiply);
     space.emit(sender, Message::Space);
+    left_bracket.emit(sender, Message::LeftBracket);
+    right_bracket.emit(sender, Message::RightBracket);
 
     while app.wait() {
         if let Some(msg) = r.recv() {
             let mut current_string = frame.label();
             match msg {
+                Message::LeftBracket => current_string += "(",
+                Message::RightBracket => current_string += ")",
                 Message::Space => {
                     current_string += " ";
                 }
